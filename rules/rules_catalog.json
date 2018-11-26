@@ -1,0 +1,6 @@
+{
+    "WhatToDo": "WhatToDo.js",
+    	"test": "test.js",
+		"newRule": "newRule.js",
+		"useContextRule": "useContextRule.js"
+}

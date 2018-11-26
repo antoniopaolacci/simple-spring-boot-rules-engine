@@ -1,0 +1,2 @@
+# Similar to application.yml but for the bootstrap phase of an application context
+debug: false
