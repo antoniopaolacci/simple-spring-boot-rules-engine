@@ -2,23 +2,18 @@
 // Implementing rule test
 
 //-------- input variable(s) ---------
-var age;
-var eligible_age = ["18", "30", "60"];
+var action;
+var expecting_action = ["toDo", "done", "postpone"];
 
 //-------- output variable(s) ---------
 var output;
 
-if (eligible_age.indexOf(age) == -1) {
-	output = "No eligible option.";
-} else if (age == "18" ) {
-	output = "Young Option";
-} else if (age == "30") {
-	output = "Genius Option";
-} else if (age == "60") {
-	output = "Over 60 Option";
+if (action == "toDo" ) {
+	output = "1";
+} else if (action == "done") {
+	output = "2";
+} else if (action == "postpone") {
+	output = "3";
 } else {
-	output = "Invalid params.";
+	output = "Invalid action. Expecting are: "+expecting_action.toString();
 }
-
-
-
