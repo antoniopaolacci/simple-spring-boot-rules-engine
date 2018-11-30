@@ -10,7 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Spring Boot provides a convenient @SpringBootApplication alternative.
  *  
  * The @SpringBootApplication annotation is equivalent to using 
- * @Configuration, @EnableAutoConfiguration and @ComponentScan with their default attributes 
+ * @Configuration, 
+ * @EnableAutoConfiguration and 
+ * @ComponentScan with their default attributes 
  * 
  */
 

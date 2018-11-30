@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,24 +26,32 @@ public class RulesCatalogService {
 
 	private static final Logger log = LoggerFactory.getLogger(RulesCatalogService.class);
 
-	// The catalog file defining all the config rules
-	// The catalog directory contains .js implemented rules
-	public static final String catalogRuleDefaultFile = "E:\\git-repo\\simple-spring-boot-rules-engine\\rules\\rules_catalog.json";
-	public static final String catalogRuleDefaultDir = "E:\\git-repo\\simple-spring-boot-rules-engine\\rules\\";
+	/* Pay attention!
+	 * Retrieve application.yml or application.properties variable using @Value 
+	 *  - it always return null if use static keywords, 
+	 *  - if try to assign value on initial instance phase... like String file_path=catalogRuleDefaultDir+catalogRuleDefaultFileName
+	 **/
 	
-	// n-tuple <rule-name , file-name>
+	@Value("${files.catalog-rule.dir-path}")
+	private String catalogRuleDefaultDir;
+	
+	@Value("${files.catalog-rule.name}")
+	private String catalogRuleDefaultFileName;
+	
+	// n-tuple <rule-name , .js file-name>
 	private Map<String, String> fileCatalogMap = new HashMap<String, String>();
 	
-	// n-tuple <rule-name , rule-text implemented on associated file>
+	// n-tuple <rule-name , full rule-text>
 	private Map<String, String> jsCatalogMap = new HashMap<String, String>();
 
 	/**
-	 * Load the fileCatalog
-	 *
+	 * To prepare and call the fileCatalogMap load
+	 * 
 	 * @throws Exception
 	 */
-	public void loadCatalog(boolean refresh) throws IOException, UnsupportedEncodingException {
-		loadCatalog(catalogRuleDefaultFile, refresh);
+	public void loadCatalog(boolean refresh) throws IOException, UnsupportedEncodingException {	
+		String __CATALOG_RULE_FILE__ = catalogRuleDefaultDir.concat(catalogRuleDefaultFileName);
+		loadCatalog(__CATALOG_RULE_FILE__, refresh);		
 	}
 
 	/**
@@ -57,7 +66,7 @@ public class RulesCatalogService {
 
 		if (fileCatalogMap == null || fileCatalogMap.isEmpty() || refresh == true) {
 
-			log.debug("Loading rules fileCatalogMap from - " + catalogFile);
+			log.info("Loading rules fileCatalogMap from - " + catalogFile);
 
 			FileSystemResource file = new FileSystemResource(catalogFile);
 			
@@ -65,22 +74,35 @@ public class RulesCatalogService {
 
 			String json = CharStreams.toString(new InputStreamReader(inStream, "UTF-8"));
 
-			// A "JSON" in the form of "string" can be parsed into a Java Map object
+			// A "json" in the form of "string" can be parsed into a Java Map Object
 			ObjectMapper mapper = new ObjectMapper();
 
 			fileCatalogMap = mapper.readValue(json, new TypeReference<Map<String, String>>() { });
 
 			log.info("The rules fileCatalogMap - " + fileCatalogMap);
 
-			log.debug("Finished loading rules fileCatalogMap. ");
+			log.info("Finished loading rules fileCatalogMap. ");
 		}
 	}
 
+	/**
+	 * Getter method 
+	 * 
+	 * @return
+	 */
 	public Map<String, String> getFileCatalog() {
 		return fileCatalogMap;
 	}
 
-	public String getNashornRule(String typeName) throws IOException, UnsupportedEncodingException {
+	/**
+	 * To obtain the full rule-text, ready to be performed on Nashorn engine
+	 * 
+	 * @param ruleName
+	 * @return
+	 * @throws IOException
+	 * @throws UnsupportedEncodingException
+	 */
+	public String getNashornRule(String ruleName) throws IOException, UnsupportedEncodingException {
 		
 		String rule = null;
 
@@ -89,33 +111,42 @@ public class RulesCatalogService {
 			loadCatalog(false);
 		}
 
-		// Is the given type in the catalog map ?
-		if (jsCatalogMap.containsKey(typeName)) {
+		// Is the given rule name in the catalog map ?
+		if (jsCatalogMap.containsKey(ruleName)) {
 			// Found it
-			rule = jsCatalogMap.get(typeName);
+			rule = jsCatalogMap.get(ruleName);
 		
 		} else {
 			// Not found in the catalog map, load it
 			// get the rule file for the given type
-			rule = getJSRule(typeName);
+			rule = getAndLoadJSRule(ruleName);
 		}
 		
 		return rule;
 		
 	}
 
-	private String getJSRule(String typeName) throws IOException, FileNotFoundException {
+	/**
+	 * 
+	 * To obtain the content and contextual put on map the full rule-text.
+	 * 
+	 * @param ruleName
+	 * @return
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	private String getAndLoadJSRule(String ruleName) throws IOException, FileNotFoundException {
 
 		String rulesText = null;
 		
-		// Get the filename associated to the rule name 
-		String ruleFileName = fileCatalogMap.get(typeName);
+		// Get the filename of .js associated to the rule name 
+		String jsRuleFileName = fileCatalogMap.get(ruleName);
 
-		if (StringUtils.hasText(ruleFileName)) {
+		if (StringUtils.hasText(jsRuleFileName)) {
 			
-			log.debug("Retrieving javascript rule - " + ruleFileName);
+			log.info("Retrieving javascript rule - " + jsRuleFileName);
 
-			FileSystemResource file = new FileSystemResource(catalogRuleDefaultDir+ruleFileName);
+			FileSystemResource file = new FileSystemResource(catalogRuleDefaultDir+jsRuleFileName);
 			
 			InputStream inStream = file.getInputStream();
 
@@ -124,11 +155,10 @@ public class RulesCatalogService {
 			}
 
 			if (StringUtils.hasText(rulesText)) {
-				
 				// Found and loaded rules, add to the map
-				jsCatalogMap.put(typeName, rulesText);
-			
+				jsCatalogMap.put(ruleName, rulesText);
 			}
+		
 		}
 
 		return rulesText;

@@ -1,28 +1,27 @@
-spring:
-  application:
-    name: rulesengine
-
- # show all actuator endpoints (only for POC)
-  endpoints:
-    enabled-by-default: true
-    web:
-      exposure:
-        include: '*'
-        
-server:
-  port: 8080
-
-# spring boot 1.x
-security:
-  basic:
+endpoints: 
+  restart: 
+    enabled: true
+files: 
+  catalog-rule:
+    dir-path: E:\\git-repo\\simple-spring-boot-rules-engine\\rules\\
+    name: rules_catalog.json
+  service-call: 
+    dir-path: E:\\git-repo\\simple-spring-boot-rules-engine\\services\\
+    name: service_catalog.json
+management: 
+  security: 
+    enabled: false
+security: 
+  basic: 
     enabled: false
   ignored: /swagger-resources/**
-
-endpoints:
-  restart:
-    enabled: true
-
-# allow access to all actuator endpoints
-management:
-  security:
-    enabled: false
+server: 
+  port: 8080
+spring: 
+  application: 
+    name: rulesengine
+  endpoints: 
+    enabled-by-default: true
+    web: 
+      exposure: 
+        include: "*"

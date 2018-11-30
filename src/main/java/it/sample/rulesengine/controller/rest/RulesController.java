@@ -46,9 +46,12 @@ public class RulesController {
 	@RequestMapping("/")
 	public String home() {
 		
-		log.info("Rules Engine.");
+		log.info("Rules Engine called.");
 		
-		return "Rules Engine.";
+		return "Rules Engine. <br> Default testing api: <br>"
+				+ "http://localhost:8080/api/rules/WhatToDo?family_visiting=yes&money=poor&weather=good <br>"
+				+ "http://localhost:8080/api/rules/EligibleTo?age=18 <br>"
+				+ "http://localhost:8080/api/rules/test?action=done";
 	
 	}
 	
@@ -83,14 +86,14 @@ public class RulesController {
 			String value;
 			
 			for(String s : params.keySet()){
-				
+
 				parameter = s;
 				value = params.getFirst(s);
 				
 				engine.put(parameter,value);
 			}
 			
-			log.info("/"+name+" uri, query-string parameters: ["+params.toString()+"]");
+			log.info("/"+name+" uri rule, query-string complete: ["+params.toString()+"]");
 			
 			engine.eval(rule);
 
@@ -121,9 +124,9 @@ public class RulesController {
 		return responseEntity;
 	}
 	
-	// Nashorn Context Customization
+	// Nashorn service-call with Context Customization
 	
-	@RequestMapping(value = "/api/rules/context/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/api/service/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> evaluateContextRule(@PathVariable String name,
 											   		  @RequestParam MultiValueMap<String, String> params) throws JSONException {
 		String json = null;
@@ -132,6 +135,7 @@ public class RulesController {
 			
 			engine = new ScriptEngineManager().getEngineByName("Nashorn");
 			
+			//redirect the javascript print to log
 			StringWriter sw = new StringWriter();
 			engine.getContext().setWriter(sw);
 			
@@ -147,9 +151,9 @@ public class RulesController {
 	        
 	        engine.setBindings(b, ScriptContext.ENGINE_SCOPE);
 
-	        engine.eval("newEngineVar = 'engine'");
-	        engine.eval("print('Engine vars:'); for each (var key in info.getEngineScopeKeys()) print (key)");
-	        engine.eval("print();print('Global vars:'); for each (var key in info.getGlobalScopeKeys()) print (key)");    
+	        engine.eval("newEngineVar='engine';");
+	        engine.eval("print('Engine vars:'); for each (var key in info.getEngineScopeKeys()) print (key);");
+	        engine.eval("print(); print('Global vars:'); for each (var key in info.getGlobalScopeKeys()) print (key);");    
 	        
 	        Map<String, String> results = new HashMap<String, String>();
 	        
@@ -180,7 +184,7 @@ public class RulesController {
 	}
 	
 	
-	public static class NashorInfo {
+	public class NashorInfo {
 
         private ScriptEngine scriptEngine;
 
