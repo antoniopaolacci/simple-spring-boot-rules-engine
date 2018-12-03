@@ -26,10 +26,11 @@ public class RulesCatalogService {
 
 	private static final Logger log = LoggerFactory.getLogger(RulesCatalogService.class);
 
+
 	/* Pay attention!
 	 * Retrieve application.yml or application.properties variable using @Value 
 	 *  - it always return null if use static keywords, 
-	 *  - if try to assign value on initial instance phase... like String file_path=catalogRuleDefaultDir+catalogRuleDefaultFileName
+	 *  - if try to assign value on initial instance phase, like: String file_path=catalogRuleDefaultDir+catalogRuleDefaultFileName
 	 **/
 	
 	@Value("${files.catalog-rule.dir-path}")
