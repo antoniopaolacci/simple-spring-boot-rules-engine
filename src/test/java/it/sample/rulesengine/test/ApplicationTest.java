@@ -9,9 +9,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ApplicationConfTest {
+public class ApplicationTest {
 
-	private static final Logger log = LoggerFactory.getLogger(ApplicationConfTest.class);
+	private static final Logger log = LoggerFactory.getLogger(ApplicationTest.class);
 	
     @Test
     public void testPerformSomeTask() throws Exception {
@@ -21,9 +21,8 @@ public class ApplicationConfTest {
         log.info("An INFO Message");
         log.warn("A WARN Message");
         log.error("An ERROR Message");
-    	
         log.info("testPerformSomeTask() called;");
-        
+     
     }
     
 }
