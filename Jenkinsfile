@@ -10,10 +10,17 @@ pipeline {
 
 	stage('Build') {
         steps {
-          sh 'mvn -DskipTests clean install'
+           script {
+                def os = System.properties['os.name'].toLowerCase()
+                echo "OS: ${os}"                
+                if (os.contains("linux")) {
+                    sh "mvn install -DskipTests" 
+                } else {
+                    bat "mvn install -DskipTests"
+               }
+          }
        }
-     }
-
+   }
 
   }
 }
